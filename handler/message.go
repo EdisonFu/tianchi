@@ -73,7 +73,7 @@ func RetrieveMessage(ctx *fasthttp.RequestCtx) {
 	}
 
 	messageList, err := services.RetrieveMessage(username, messageControlData.PageIndex, messageControlData.PageSize)
-	if err != nil {
+	if err != nil || len(messageList) == 0 {
 		ctx.SetStatusCode(http.StatusBadRequest)
 		ctx.SetBodyString("Invalid input")
 		l4g.Error("%s RetrieveMessage err:%v", username, err)

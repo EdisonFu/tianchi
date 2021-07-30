@@ -46,7 +46,22 @@ func ReadAllMessage() (msgs []Message) {
 }
 
 func ReadMessage(roomid string, pageIndex, pageSize int32) (msgs []Message) {
-	result := db.Table("message").Where("roomId=?", roomid).Offset(pageIndex * pageSize).Limit(pageSize).Find(msgs)
+	var count, limit int32
+	db.Table("message").Where("room_id=?", roomid).Count(&count)
+	if count <= 0 {
+		return
+	}
+
+	if count+pageIndex*pageSize < -pageSize {
+		return
+	}
+
+	if count+pageIndex*pageSize < 0 {
+		limit = ((pageIndex + 1) * pageSize) + count
+	} else {
+		limit = pageSize
+	}
+	result := db.Table("message").Where("room_id=?", roomid).Offset(count + pageIndex*pageSize).Limit(limit).Find(&msgs)
 	if result.Error != nil {
 		l4g.Error("ReadMessage select err:%v", result.Error)
 		return nil

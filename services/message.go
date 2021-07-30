@@ -55,13 +55,18 @@ func RetrieveMessage(username string, index, size int32) (messageList []*models.
 
 	l := int32(len(list))
 
-	if l <= -(index * size) {
+	startIndex := index * size
+	endIndex := (index + 1) * size
+
+	if l <= -endIndex {
 		return
 	}
 
-	startIndex := index * size
-	endIndex := (index + 1) * size
-	messageList = list[l+startIndex : l+endIndex]
+	s := l + startIndex
+	if l+startIndex < 0 {
+		s = 0
+	}
 
+	messageList = list[s : l+endIndex]
 	return
 }
