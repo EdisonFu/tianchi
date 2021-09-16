@@ -14,14 +14,13 @@ var db *gorm.DB
 func init() {
 	var err error
 	db, err = gorm.Open("mysql", "root:Fzd2813891.@tcp(127.0.0.1:3306)/chatroom?charset=utf8mb4&parseTime=True&loc=Local")
-	//db, err = gorm.Open("mysql", "root:Fzd2813891.@tcp(101.132.66.240:3306)/chatroom?charset=utf8mb4&parseTime=True&loc=Local")
 	if err != nil {
 		fmt.Println("mysql connect err:", err)
 		panic("mysql connect err!")
 	}
 	db.SingularTable(true)
 
-	db.DB().SetMaxIdleConns(50)
+	db.DB().SetMaxIdleConns(20)
 	db.DB().SetMaxOpenConns(100)
 
 	createTables()
@@ -37,6 +36,7 @@ func createTables() {
 	}
 
 	if !db.HasTable(&Token{}) {
+
 		if err := db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8").CreateTable(&Token{}).Error; err != nil {
 			l4g.Error("Create table Token err:%v", err)
 		}

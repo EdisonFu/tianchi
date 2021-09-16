@@ -54,7 +54,6 @@ func RetrieveMessage(username string, index, size int32) (messageList []*models.
 	}
 
 	l := int32(len(list))
-
 	startIndex := index * size
 	endIndex := (index + 1) * size
 

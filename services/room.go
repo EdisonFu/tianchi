@@ -15,15 +15,11 @@ func CreateRoom(username string, room *models.Room) (id string, err error) {
 
 	id = strconv.Itoa(len(cache.RoomList) + 1)
 	room.Id = id
+
 	helper := cache.InitRoomHelper(room)
-	//helper.EnterRoom(username)
 	cache.RoomHelperMap.Store(room.Id, helper)
-
-	//cache.UserRoomMap.Store(username, room.Id)
 	cache.RoomList = append(cache.RoomList, room)
-
 	db.WriteRoomChan <- room
-	//db.UserEnterRoomChan <- username + "|" + id
 
 	return
 }
@@ -48,6 +44,7 @@ func LeaveRoom(username string) (err error) {
 	if !ok {
 		return err
 	}
+	cache.UserRoomMap.Delete(username)
 
 	roomHelper, ok := cache.RoomHelperMap.Load(roomId)
 	if ok && roomHelper != nil {
@@ -79,6 +76,33 @@ func GetUserList(roomId string) (userList []string, err error) {
 }
 
 func GetRoomList(index, size int32) (roomList []*models.Room, err error) {
+	//当index小于0，按由新到旧页面顺序返回数据
+	if index < 0 {
+		l := int32(len(cache.RoomList))
+		startIndex := index * size
+		endIndex := (index + 1) * size
+
+		if l <= -endIndex {
+			return nil, errors.New("no request data!")
+		}
+
+		s := l + startIndex
+		if l+startIndex < 0 {
+			s = 0
+		}
+
+		roomList = cache.RoomList[s : l+endIndex]
+
+		length := len(roomList)
+		var result = make([]*models.Room, length)
+		for i, room := range roomList {
+			result[length-1-i] = room
+		}
+
+		return result, nil
+	}
+
+	//当index大于0，按由旧到新页面顺序返回数据
 	startIndex := index * size
 	endIndex := (index + 1) * size
 	l := int32(len(cache.RoomList))

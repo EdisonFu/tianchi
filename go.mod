@@ -9,6 +9,7 @@ require (
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/jinzhu/gorm v1.9.16
 	github.com/json-iterator/go v1.1.11
+	github.com/panjf2000/ants/v2 v2.4.6
 	github.com/valyala/fasthttp v1.28.0
 	go.uber.org/automaxprocs v1.4.0
 )

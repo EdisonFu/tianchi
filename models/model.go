@@ -41,7 +41,7 @@ type MessageControlData struct {
 }
 
 type Message struct {
-	Id        string `json:"id"`
+	Id        string `json:"id" gorm:"index:msg_idx"`
 	Text      string `json:"text"`
 	TimeStamp string `json:"timestamp"`
 	RoomId    string `json:"-" gorm:"index:msg_idx"`
