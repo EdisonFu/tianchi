@@ -13,7 +13,7 @@ func CreateUser(ctx *fasthttp.RequestCtx) {
 	args := ctx.Request.Body()
 	err := json.Unmarshal(args, &user)
 	if err != nil {
-		ctx.SetStatusCode(http.StatusNotFound)
+		ctx.SetStatusCode(http.StatusBadRequest)
 		ctx.SetBodyString("Invalid input")
 		l4g.Error("CreateUser Unmarshal args err:%v", err)
 		return
@@ -59,7 +59,7 @@ func UserLogin(ctx *fasthttp.RequestCtx) {
 
 func GetUser(ctx *fasthttp.RequestCtx) {
 	if len(ctx.Request.URI().Path()) < len("/user/") {
-		ctx.SetStatusCode(http.StatusNotFound)
+		ctx.SetStatusCode(http.StatusBadRequest)
 		ctx.SetBodyString("Invalid username supplied")
 		return
 	}

@@ -11,7 +11,10 @@ func CreateUser(user *models.User) (err error) {
 	if user == nil {
 		return errors.New("user is nil")
 	}
-	cache.UserInfoMap.Store(user.Username, user)
+	_, loaded := cache.UserInfoMap.LoadOrStore(user.Username, user)
+	if loaded {
+		return errors.New("user is exist")
+	}
 
 	db.WriteUserChan <- user
 	return

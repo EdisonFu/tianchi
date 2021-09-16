@@ -11,7 +11,6 @@ import (
 func CreateRoom(ctx *fasthttp.RequestCtx) {
 	username := JWTAuth(ctx)
 	if len(username) == 0 {
-		l4g.Error("CreateRoom JWTAuth user err!")
 		return
 	}
 
@@ -19,13 +18,13 @@ func CreateRoom(ctx *fasthttp.RequestCtx) {
 	args := ctx.Request.Body()
 	err := json.Unmarshal(args, &room)
 	if err != nil {
-		ctx.SetStatusCode(http.StatusNotFound)
+		ctx.SetStatusCode(http.StatusBadRequest)
 		ctx.SetBodyString("Invalid input")
 		l4g.Error("CreateRoom Unmarshal args err:%v", err)
 		return
 	}
 	if room == nil || room.Name == "" {
-		ctx.SetStatusCode(http.StatusNotFound)
+		ctx.SetStatusCode(http.StatusBadRequest)
 		ctx.SetBodyString("Invalid input")
 		l4g.Error("CreateRoom room illegal:%v", room)
 		return
@@ -47,12 +46,11 @@ func CreateRoom(ctx *fasthttp.RequestCtx) {
 func EnterRoom(ctx *fasthttp.RequestCtx) {
 	username := JWTAuth(ctx)
 	if len(username) == 0 {
-		l4g.Error("EnterRoom JWTAuth user err!")
 		return
 	}
 
 	if len(ctx.Request.URI().Path()) < len("/room//enter") {
-		ctx.SetStatusCode(http.StatusNotFound)
+		ctx.SetStatusCode(http.StatusBadRequest)
 		ctx.SetBodyString("Invalid Room ID")
 		return
 	}
@@ -60,6 +58,7 @@ func EnterRoom(ctx *fasthttp.RequestCtx) {
 	roomId := string(ctx.Request.URI().Path())[len("/room/"):]
 	roomId = roomId[:len(roomId)-len("/enter")]
 
+	//leave room before enter room
 	services.LeaveRoom(username)
 
 	err := services.EnterRoom(username, roomId)
@@ -96,7 +95,7 @@ func LeaveRoom(ctx *fasthttp.RequestCtx) {
 
 func GetRoom(ctx *fasthttp.RequestCtx) {
 	if len(ctx.Request.URI().Path()) < len("/room/") {
-		ctx.SetStatusCode(http.StatusNotFound)
+		ctx.SetStatusCode(http.StatusBadRequest)
 		ctx.SetBodyString("Invalid Room ID")
 		return
 	}
@@ -117,7 +116,7 @@ func GetRoom(ctx *fasthttp.RequestCtx) {
 
 func GetUserList(ctx *fasthttp.RequestCtx) {
 	if len(ctx.Request.URI().Path()) < len("/room//users") {
-		ctx.SetStatusCode(http.StatusNotFound)
+		ctx.SetStatusCode(http.StatusBadRequest)
 		ctx.SetBodyString("Invalid Room ID")
 		return
 	}
@@ -144,17 +143,18 @@ func GetRoomList(ctx *fasthttp.RequestCtx) {
 	args := ctx.Request.Body()
 	err := json.Unmarshal(args, &roomControlData)
 	if err != nil {
-		ctx.SetStatusCode(http.StatusNotFound)
+		ctx.SetStatusCode(http.StatusBadRequest)
 		ctx.SetBodyString("Invalid input")
 		l4g.Error("GetRoomList Unmarshal args err:%v", err)
 		return
 	}
 
-	if roomControlData.PageIndex < 0 || roomControlData.PageSize <= 0 {
+	if roomControlData.PageSize <= 0 {
 		ctx.SetStatusCode(http.StatusBadRequest)
-		ctx.SetBodyString("PageIndex/PageSize Error")
+		ctx.SetBodyString("PageSize Error")
 		return
 	}
+	l4g.Debug("GetRoomList index:%d, size:%d", roomControlData.PageIndex, roomControlData.PageSize)
 
 	roomList, err := services.GetRoomList(roomControlData.PageIndex, roomControlData.PageSize)
 	if err != nil {

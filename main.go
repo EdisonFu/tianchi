@@ -3,19 +3,25 @@ package main
 import (
 	_ "go.uber.org/automaxprocs"
 	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"os/signal"
 	"syscall"
 	"tianchi/dao/cache"
+	_ "tianchi/dao/mysql"
 	"tianchi/handler"
-	_"tianchi/dao/mysql"
-	_ "net/http/pprof"
 
 	l4g "github.com/alecthomas/log4go"
 )
 
 func main() {
 	l4g.LoadConfiguration("./log4go.xml")
+
+	defer func() {
+		if err := recover(); err != nil {
+			l4g.Error("server panic:%v", err)
+		}
+	}()
 
 	go func() {
 		err := http.ListenAndServe(":6065", nil)

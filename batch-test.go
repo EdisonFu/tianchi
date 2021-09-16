@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
+	"strconv"
 	"tianchi/models"
 	"time"
 )
@@ -38,6 +39,7 @@ func main() {
 	n := flag.Int("n", 100, "number")
 	flag.Parse()
 
+	//time.Sleep(1000 * time.Second)
 	////
 	//createUser(*n)
 	//token := loginUser(fmt.Sprintf("name%d", *n))
@@ -45,15 +47,21 @@ func main() {
 	//fmt.Println(createRoom(*n, token))
 	//time.Sleep(60 * time.Second)
 	////
+	createUser(999999)
+	token := loginUser("name999999")
 
-	var roomId string
+	for k := 1; k < 11; k++ {
+		func(k int) {
+			createRoom(k, token)
+		}(k)
+	}
+
 	for i := 0; i < *n; i++ {
 		go func(i int) {
 			createUser(i)
+			time.Sleep(2000 * time.Millisecond)
 			token := loginUser(fmt.Sprintf("name%d", i))
-			if i%10 == 0 {
-				roomId = createRoom(i, token)
-			}
+			roomId := strconv.Itoa(i%10 + 1)
 			getRoom(roomId)
 			enterRoom(roomId, token)
 			leaveRoom(token)
@@ -63,7 +71,6 @@ func main() {
 			sendMsg(i, token)
 			getMsg(token)
 		}(i)
-
 	}
 
 	time.Sleep(20 * time.Second)
@@ -73,10 +80,11 @@ func main() {
 			getUser(fmt.Sprintf("name%d", j))
 			getRoomList()
 		}(j)
-
 	}
 
-	time.Sleep(100 * time.Second)
+	time.Sleep(20 * time.Second)
+
+	fmt.Println("test down!!!!")
 }
 
 //---------------user---------------------
