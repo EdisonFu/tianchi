@@ -1,0 +1,33 @@
+//创建用户Tom
+curl -H "Content-Type: application/json" -X POST -d '{"username":"Tom","firstName":"Tom","password":"123456"}' "http://0.0.0.0:8080/user"
+curl -X GET "http://0.0.0.0:8080/user/Tom"
+curl -X GET "http://0.0.0.0:8080/userLogin?username=Tom&password=123456"
+
+//创建用户Jerry
+curl -H "Content-Type: application/json" -X POST -d '{"username":"Jerry","firstName":"Jerry","password":"123456"}' "http://0.0.0.0:8080/user"
+curl -X GET "http://0.0.0.0:8080/user/Jerry"
+curl -X GET "http://0.0.0.0:8080/userLogin?username=Jerry&password=123456"
+
+//Tom创建房间
+curl -H "Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJUb20ifQ.Tovgwd95fDGylCjv7FTdF6Ne35TzFrbm3mtXCA2WOkI" -X POST -d '{"name":"room1"}' "http://0.0.0.0:8080/room"
+
+//获取房间列表
+curl -X POST -d '{"pageIndex":-1, "pageSize":10}' "http://0.0.0.0:8080/roomList"
+
+//Jerry进入房间
+curl -H "Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJKZXJyeSJ9.dDVnQCK4HiFPTulxyLIJd_-g7LgO__QH_RAv7O2xqrY" -X PUT "http://0.0.0.0:8080/room/1/enter"
+
+//获取房间用户列表
+curl -X GET "http://0.0.0.0:8080/room/1/users"
+
+//Jerry离开房间
+curl -H "Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJKZXJyeSJ9.dDVnQCK4HiFPTulxyLIJd_-g7LgO__QH_RAv7O2xqrY" -X PUT "http://0.0.0.0:8080/roomLeave"
+
+//获取房间信息
+curl -X GET "http://0.0.0.0:8080/room/1"
+
+//Jerry发送消息
+curl -H "Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJKZXJyeSJ9.dDVnQCK4HiFPTulxyLIJd_-g7LgO__QH_RAv7O2xqrY" -X POST -d '{"id":"1", "text":"hello!"}' "http://0.0.0.0:8080/message/send"
+
+//Tom接受消息
+curl -H "Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJUb20ifQ.Tovgwd95fDGylCjv7FTdF6Ne35TzFrbm3mtXCA2WOkI" -X POST -d '{"pageIndex":-1, "pageSize":10}' "http://0.0.0.0:8080/message/retrieve"
